@@ -8,7 +8,7 @@ if (Astro.request.method === 'POST') {
   const password = data.get('password');
 
   // SILAKAN GANTI 'ghani' DENGAN PASSWORD ADMIN ANDA
-  if (password === 'brilink2026') {
+  if (password === 'ghani') {
     Astro.cookies.set('admin_session', 'active', { path: '/', httpOnly: true, secure: true });
     return Astro.redirect('/admin');
   } else {
