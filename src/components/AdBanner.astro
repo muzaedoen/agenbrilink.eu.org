@@ -1,0 +1,22 @@
+---
+interface Props {
+  scriptCode: string;
+}
+const { scriptCode } = Astro.props;
+---
+{scriptCode && (
+  <div class="adsterra-holder">
+    <Fragment set:html={scriptCode} />
+  </div>
+)}
+
+<style>
+  .adsterra-holder {
+    margin: 2rem auto;
+    text-align: center;
+    max-width: 100%;
+    overflow-x: auto;
+    display: flex;
+    justify-content: center;
+  }
+</style>
