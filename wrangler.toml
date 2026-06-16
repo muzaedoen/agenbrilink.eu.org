@@ -4,5 +4,5 @@ pages_build_output_dir = "./dist"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "prod-db"
-database_id = "PASTE_ID_DATABASE_D1_ANDA_DISINI"
+database_name = "agenbrilink_db"
+database_id = "348e4718-dc1e-4cca-9e8f-59d1d6ab0f5e"
