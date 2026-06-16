@@ -1,0 +1,58 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AdBanner from '../../components/AdBanner.astro';
+import { marked } from 'marked';
+
+const { slug } = Astro.params;
+const runtime = Astro.locals.runtime;
+let post: any = null;
+
+try {
+  const { results } = await runtime.env.DB.prepare(
+    "SELECT * FROM posts WHERE slug = ?"
+  ).bind(slug).all();
+  post = results[0];
+} catch (e) {
+  console.error(e);
+}
+
+if (!post) {
+  return Astro.redirect('/404');
+}
+
+// Render Markdown (.md) ke kode HTML murni
+const htmlContent = await marked.parse(post.content);
+---
+
+<Layout title={`${post.title} - SkyBlog`}>
+  <article class="post-wrapper">
+    <header>
+      <h1 class="post-title">{post.title}</h1>
+      <div class="post-meta">
+        Diterbitkan pada: {new Date(post.created_at).toLocaleDateString('id-ID', { dateStyle: 'long' })}
+      </div>
+    </header>
+
+    <AdBanner scriptCode={post.ad_script} />
+
+    <hr class="divider" />
+
+    <div class="markdown-body" set:html={htmlContent} />
+  </article>
+</Layout>
+
+<style is:global>
+  .post-wrapper { margin-top: 2rem; padding-bottom: 5rem; }
+  .post-title { font-size: 2.2rem; color: var(--accent); line-height: 1.2; }
+  .post-meta { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem; }
+  .divider { border: 0; border-top: 1px solid var(--border); margin: 2rem 0; }
+  
+  /* Styling otomatis agar konten file .md Anda rapi di HP */
+  .markdown-body p { margin-bottom: 1.25rem; line-height: 1.75; font-size: 1.05rem; }
+  .markdown-body h2 { margin: 2rem 0 1rem 0; font-size: 1.6rem; color: var(--accent); }
+  .markdown-body h3 { margin: 1.5rem 0 0.5rem 0; font-size: 1.25rem; }
+  .markdown-body ul, .markdown-body ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+  .markdown-body li { margin-bottom: 0.5rem; }
+  .markdown-body img { max-width: 100%; height: auto; border-radius: 8px; margin: 1.5rem 0; }
+  .markdown-body strong { color: var(--accent); }
+</style>
