@@ -7,7 +7,7 @@ if (Astro.request.method === 'POST') {
   const data = await Astro.request.formData();
   const password = data.get('password');
 
-  // SILAKAN GANTI 'brilink2026' DENGAN PASSWORD ADMIN ANDA
+  // SILAKAN GANTI 'ghani' DENGAN PASSWORD ADMIN ANDA
   if (password === 'brilink2026') {
     Astro.cookies.set('admin_session', 'active', { path: '/', httpOnly: true, secure: true });
     return Astro.redirect('/admin');
