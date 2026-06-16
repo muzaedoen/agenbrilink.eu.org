@@ -1,0 +1,86 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const session = Astro.cookies.get('admin_session');
+if (!session || session.value !== 'active') {
+  return Astro.redirect('/login');
+}
+
+let status = '';
+
+if (Astro.request.method === 'POST') {
+  try {
+    const data = await Astro.request.formData();
+    const title = data.get('title') as string;
+    const slug = data.get('slug') as string;
+    const adScript = data.get('ad_script') as string;
+    const file = data.get('md_file') as File;
+
+    let markdownContent = '';
+    if (file && file.size > 0) {
+      markdownContent = await file.text(); // Membaca file .md menjadi string teks murni
+    }
+
+    const runtime = Astro.locals.runtime;
+    await runtime.env.DB.prepare(
+      "INSERT INTO posts (title, slug, content, ad_script, created_at) VALUES (?, ?, ?, ?, ?)"
+    ).bind(title, slug, markdownContent, adScript, new Date().toISOString()).run();
+
+    status = "SUCCESS";
+  } catch (err) {
+    status = "ERROR";
+  }
+}
+---
+
+<Layout title="Tambah Artikel Baru">
+  <div style="margin: 2rem 0;">
+    <a href="/admin" style="color: var(--accent); text-decoration: none;">← Kembali ke Dashboard</a>
+    <h1 style="margin-top: 1rem;">Upload Artikel Baru (.md)</h1>
+
+    {status === "SUCCESS" && <div class="msg success">🎉 Artikel berhasil diterbitkan dan masuk database D1!</div>}
+    {status === "ERROR" && <div class="msg error">❌ Gagal menyimpan artikel. Periksa apakah slug sudah pernah dipakai.</div>}
+
+    <form method="POST" enctype="multipart/form-data">
+      <div class="group">
+        <label>Judul Postingan</label>
+        <input type="text" name="title" required placeholder="Contoh: Cara Transaksi BRILink Mobile" />
+      </div>
+
+      <div class="group">
+        <label>Slug URL (Gunakan huruf kecil & tanda hubung tanpa spasi)</label>
+        <input type="text" name="slug" required placeholder="contoh: cara-transaksi-brilink-mobile" />
+      </div>
+
+      <div class="group file-box">
+        <label><strong>Pilih File Mentahan Artikel (.md)</strong></label>
+        <input type="file" name="md_file" accept=".md" required />
+      </div>
+
+      <div class="group">
+        <label>Script Banner JavaScript Adsterra (Opsional)</label>
+        <textarea name="ad_script" rows="5" placeholder="Paste kode javascript banner Adsterra disini..."></textarea>
+      </div>
+
+      <button type="submit">Terbitkan Sekarang</button>
+    </form>
+  </div>
+</Layout>
+
+<style>
+  form { background: var(--bg-card); padding: 2rem; border-radius: 8px; border: 1px solid var(--border); margin-top: 1.5rem; }
+  .group { margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  label { font-weight: 600; font-size: 0.95rem; }
+  input[type="text"], textarea {
+    padding: 0.75rem; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--bg-primary); color: var(--text-primary); width: 100%;
+  }
+  .file-box { border: 2px dashed var(--accent); padding: 1rem; border-radius: 6px; background: rgba(56, 189, 248, 0.05); }
+  button {
+    background: var(--accent); color: white; border: none; padding: 0.9rem;
+    border-radius: 6px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem;
+  }
+  .msg { padding: 1rem; border-radius: 6px; margin-bottom: 1rem; font-weight: bold; text-align: center; }
+  .success { background: #dcfce7; color: #166534; }
+  .error { background: #fef2f2; color: #991b1b; }
+</style>
