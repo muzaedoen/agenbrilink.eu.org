@@ -6,5 +6,5 @@ Its name is Borobudur Temple which is located in Central Java Province
 
 "
 pubDate: "2026-06-16"
-layout: "../../layouts/layout.astro"
+layout: "../../layouts/Layout.astro"
 ---
