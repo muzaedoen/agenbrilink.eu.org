@@ -1,0 +1,18 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const session = Astro.cookies.get('admin_session');
+if (!session || session.value !== 'active') {
+  return Astro.redirect('/login');
+}
+---
+
+<Layout title="Admin Dashboard">
+  <div style="margin: 3rem 0; display: flex; justify-content: space-between; align-items: center;">
+    <h1>Dashboard Kontrol Admin</h1>
+    <a href="/admin/add-post" style="background: var(--accent); color: white; padding: 0.75rem 1.25rem; border-radius: 6px; text-decoration: none; font-weight: bold;">
+      + Tambah Postingan (.md)
+    </a>
+  </div>
+  <p style="color: var(--text-muted)">Gunakan menu di atas untuk menerbitkan tulisan mentahan berformat Markdown langsung ke database Cloudflare D1 beserta script iklan Adsterra.</p>
+</Layout>
