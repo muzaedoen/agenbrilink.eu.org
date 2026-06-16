@@ -1,0 +1,7 @@
+name = "agenbrilink"
+compatibility_date = "2026-06-16"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "prod-db"
+database_id = "PASTE_ID_DATABASE_D1_ANDA_DISINI"
