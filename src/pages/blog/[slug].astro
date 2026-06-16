@@ -20,16 +20,26 @@ if (!post) {
   return Astro.redirect('/404');
 }
 
+// ---- FITUR BARU: HITUNG OTOMATIS ESTIMASI WAKTU BACA ----
+const postContent = post.content || "";
+const wordsPerMinute = 200; // Kecepatan rata-rata membaca manusia
+const wordCount = postContent.trim().split(/\s+/).length;
+const readingTime = Math.ceil(wordCount / wordsPerMinute);
+
 // Render Markdown (.md) ke kode HTML murni
 const htmlContent = await marked.parse(post.content);
 ---
 
 <Layout title={`${post.title} - SkyBlog`}>
+  <!-- FITUR BARU: GARIS INDIKATOR MEMBACA MEWAH (MELAYANG DI ATAS) -->
+  <div id="reading-progress-bar"></div>
+
   <article class="post-wrapper">
     <header>
       <h1 class="post-title">{post.title}</h1>
       <div class="post-meta">
-        Diterbitkan pada: {new Date(post.created_at).toLocaleDateString('id-ID', { dateStyle: 'long' })}
+        <span>📅 Diterbitkan: {new Date(post.created_at).toLocaleDateString('id-ID', { dateStyle: 'long' })}</span>
+        <span class="reading-time">⏱️ {readingTime} Menit Membaca</span>
       </div>
     </header>
 
@@ -41,10 +51,54 @@ const htmlContent = await marked.parse(post.content);
   </article>
 </Layout>
 
+<!-- SCRIPT UNTUK JALANKAN PROGRESS BAR SAAT LAYAR DI-SCROLL -->
+<script>
+  window.addEventListener('scroll', () => {
+    const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrolled = (winScroll / height) * 100;
+    
+    const progressBar = document.getElementById('reading-progress-bar');
+    if (progressBar) {
+      progressBar.style.width = scrolled + '%';
+    }
+  });
+</script>
+
 <style is:global>
+  /* STYLING PROGRESS BAR MELAYANG */
+  #reading-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(to right, #38bdf8, #0284c7); /* Gradasi Biru Neon Mewah */
+    width: 0%;
+    z-index: 9999;
+    transition: width 0.1s ease-out;
+  }
+
   .post-wrapper { margin-top: 2rem; padding-bottom: 5rem; }
   .post-title { font-size: 2.2rem; color: var(--accent); line-height: 1.2; }
-  .post-meta { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem; }
+  
+  /* MENYESUAIKAN META AGAR ADA JARAK ANTARA TANGGAL DAN WAKTU BACA */
+  .post-meta { 
+    color: var(--text-muted); 
+    font-size: 0.9rem; 
+    margin-top: 0.75rem; 
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px; 
+    align-items: center;
+  }
+  .post-meta .reading-time {
+    background: rgba(56, 189, 248, 0.1); /* Background tipis estetik */
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
   .divider { border: 0; border-top: 1px solid var(--border); margin: 2rem 0; }
   
   /* Styling otomatis agar konten file .md Anda rapi di HP */
